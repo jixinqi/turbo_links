@@ -18,7 +18,7 @@ int main()
         const auto local_address = boost::asio::ip::make_address("0.0.0.0");
         const std::uint16_t local_port = 1111;
 
-        turbo_links::scan::ping_packet_data_t ping;
+        turbo_links::scan::scanner_packet_udp_ping_data_t ping;
         // 演示用 flow_token，两端配置须相同。
         ping.flow_token = {
             't', 'u', 'r', 'b', 'o', '_', 'l', 'i',
@@ -30,7 +30,7 @@ int main()
             value = static_cast<std::uint8_t>(byte(random));
 
         auto params =
-            std::make_shared<turbo_links::scan::scanner_sender_udp_params>(
+            std::make_shared<turbo_links::scan::scanner_sender_udp_params_t>(
                 "192.168.23.21", 2222, 1000, 2000, 3, 1000, ping);
 
         // io_context 和 socket 由 main 持有，活到发送器完成全部异步回调之后。
@@ -38,10 +38,10 @@ int main()
         boost::asio::ip::udp::socket socket(io_context, boost::asio::ip::udp::endpoint(local_address, local_port));
         boost::asio::signal_set stop_signals(io_context, SIGINT, SIGTERM);
 
-        auto sender = std::make_shared<turbo_links::scan::scanner_sender_udp>(
+        auto sender = std::make_shared<turbo_links::scan::scanner_sender_udp_t>(
             socket);
         stop_signals.async_wait(
-            [weak_sender = std::weak_ptr<turbo_links::scan::scanner_sender_udp>(sender)]
+            [weak_sender = std::weak_ptr<turbo_links::scan::scanner_sender_udp_t>(sender)]
             (boost::system::error_code ec, int /*signal_number*/)
             {
                 if (!ec)

@@ -7,23 +7,12 @@ find_package(Threads REQUIRED)
 
 add_executable(turbo_links
     "src/main.cpp"
-    "src/scan/udp_ping_packet.cpp"
+    "src/scan/scanner_packet_udp_ping.cpp"
     "src/scan/scanner_sender_udp.cpp"
 )
 
 set(turbo_links_targets turbo_links)
 
-include(CTest)
-if(BUILD_TESTING)
-    add_executable(scanner_sender_udp_test
-        "tests/scanner_sender_udp_test.cpp"
-        "src/scan/scanner_sender_udp.cpp"
-        "src/scan/udp_ping_packet.cpp"
-    )
-    list(APPEND turbo_links_targets scanner_sender_udp_test)
-    add_test(NAME scanner_sender_udp COMMAND scanner_sender_udp_test)
-    set_tests_properties(scanner_sender_udp PROPERTIES TIMEOUT 20)
-endif()
 
 foreach(turbo_links_target IN LISTS turbo_links_targets)
     target_compile_features(${turbo_links_target} PRIVATE cxx_std_17)

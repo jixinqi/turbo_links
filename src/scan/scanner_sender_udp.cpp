@@ -12,14 +12,14 @@
 namespace turbo_links::scan
 {
 
-scanner_sender_udp_params::scanner_sender_udp_params(
+scanner_sender_udp_params_t::scanner_sender_udp_params_t(
     std::string        _target_ip,
     std::uint32_t      _target_port,
     std::uint32_t      _scan_start_port,
     std::uint32_t      _scan_end_port,
     std::uint32_t      _loop_count,
     std::uint32_t      _pps,
-    ping_packet_data_t _ping_packet_data
+    scanner_packet_udp_ping_data_t _ping_packet_data
 )
 : target_ip(_target_ip)
 , target_port(_target_port)
@@ -31,13 +31,13 @@ scanner_sender_udp_params::scanner_sender_udp_params(
 {
 }
 
-scanner_sender_udp::scanner_sender_udp(boost::asio::ip::udp::socket& _socket)
+scanner_sender_udp_t::scanner_sender_udp_t(boost::asio::ip::udp::socket& _socket)
 : socket_ { _socket }
 , exit_signal_ { false }
 {
 }
 
-void scanner_sender_udp::do_send(std::shared_ptr<scanner_sender_udp_params> _params)
+void scanner_sender_udp_t::do_send(std::shared_ptr<scanner_sender_udp_params_t> _params)
 {
     params_ = _params;
 
@@ -51,24 +51,24 @@ void scanner_sender_udp::do_send(std::shared_ptr<scanner_sender_udp_params> _par
         throw std::invalid_argument("invalid UDP scan params.");
     }
 
-    state_ = std::make_shared<scanner_sender_udp_state>();
+    state_ = std::make_shared<scanner_sender_udp_state_t>();
     state_->target_endpoint = boost::asio::ip::udp::endpoint(
         boost::asio::ip::make_address(params_->target_ip),
         static_cast<std::uint16_t>(params_->scan_start_port)
     );
     state_->current_port_ = params_->scan_start_port;
     state_->current_loop_ = 0;
-    state_->send_buffer = ping_packet_t::serialize(params_->ping_packet_data);
+    state_->send_buffer = scanner_packet_udp_ping_t::serialize(params_->ping_packet_data);
 
     do_send_impl();
 }
 
-void scanner_sender_udp::exit()
+void scanner_sender_udp_t::exit()
 {
     exit_signal_.store(true, std::memory_order_release);
 }
 
-void scanner_sender_udp::do_send_impl()
+void scanner_sender_udp_t::do_send_impl()
 {
     state_->target_endpoint.port(static_cast<std::uint16_t>(state_->current_port_));
 

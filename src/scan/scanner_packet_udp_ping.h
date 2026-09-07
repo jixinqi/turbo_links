@@ -15,7 +15,7 @@ namespace turbo_links::scan
 inline constexpr std::size_t flow_token_size = 16;
 inline constexpr std::size_t nonce_size = 4;
 
-struct ping_packet_data_t
+struct scanner_packet_udp_ping_data_t
 {
     // 当前 flow 的 128-bit 标识符。
     std::array<std::uint8_t, flow_token_size> flow_token {};
@@ -34,7 +34,7 @@ struct ping_packet_data_t
     *   flow_token 16 bytes：标识本次打洞 flow
     *   nonce       4 bytes：标识当前端口扫描过程
     */
-class ping_packet_t
+class scanner_packet_udp_ping_t
 {
 public:
     // PING magic，wire 上固定为 ASCII "UFFP"。
@@ -56,10 +56,10 @@ public:
     static_assert(wire_size == 24);
 
     // 将 PING 数据序列化成固定 24-byte wire packet。
-    static std::array<std::uint8_t, wire_size> serialize(const ping_packet_data_t& packet);
+    static std::array<std::uint8_t, wire_size> serialize(const scanner_packet_udp_ping_data_t& packet);
 
     // 解析固定 24-byte PING packet；长度或 magic 不正确时返回 std::nullopt。
-    static std::optional<ping_packet_data_t> parse(const std::uint8_t* data, std::size_t size);
+    static std::optional<scanner_packet_udp_ping_data_t> parse(const std::uint8_t* data, std::size_t size);
 };
 
 }
