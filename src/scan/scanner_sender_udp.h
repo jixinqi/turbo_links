@@ -2,6 +2,7 @@
 #define TURBO_LINKS_SCAN_SCANNER_SENDER_UDP_H
 
 #include <array>
+#include <atomic>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -58,9 +59,10 @@ public:
     // 接收 scanner 的发送请求并开始扫描。
     // 一次请求严格发送 target_port, 1, 2, ... 65535，然后退出。
     // 即配置端口在遍历中仍会再发送一次，不探测 0 端口。
+    // 空参数或扫描范围无效时抛出 std::invalid_argument；运行中重复启动抛出 std::logic_error。
     void do_send(std::shared_ptr<scanner_sender_udp_params_t> _params);
 
-    // 只设置退出信号；当前发送或 timer 回调到达后停止续订。
+    // 只设置退出信号；当前发送回调停止续订后，running_flag_ 才变为 false。
     void exit();
 
 protected:
@@ -71,6 +73,7 @@ protected:
     std::shared_ptr<scanner_sender_udp_state_t> state_;
 
     std::atomic<bool> exit_signal_;
+    std::atomic<bool> running_flag_;
 };
 
 }
