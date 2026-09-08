@@ -15,8 +15,8 @@ namespace turbo_links::scan
 scanner_sender_udp_params_t::scanner_sender_udp_params_t(
     std::string        _target_ip,
     std::uint32_t      _target_port,
-    std::uint32_t      _scan_start_port,
-    std::uint32_t      _scan_end_port,
+    std::uint16_t      _scan_start_port,
+    std::uint16_t      _scan_end_port,
     std::uint32_t      _loop_count,
     std::uint32_t      _pps,
     scanner_packet_udp_ping_data_t _ping_packet_data
@@ -85,7 +85,7 @@ void scanner_sender_udp_t::do_send_impl()
 
             if (
                 this->state_->current_port_ == this->params_->scan_end_port &&
-                this->state_->current_loop_ == this->params_->loop_count
+                this->state_->current_loop_ + 1 == this->params_->loop_count
             )
             {
                 return;
@@ -94,7 +94,7 @@ void scanner_sender_udp_t::do_send_impl()
             {
                 this->state_->current_port_++;
             }
-            else if(this->state_->current_loop_ < this->params_->loop_count)
+            else
             {
                 this->state_->current_loop_++;
                 this->state_->current_port_ = this->params_->scan_start_port;

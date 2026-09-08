@@ -23,16 +23,16 @@ public:
     scanner_sender_udp_params_t(
         std::string        _target_ip,
         std::uint32_t      _target_port,
-        std::uint32_t      _scan_start_port,
-        std::uint32_t      _scan_end_port,
+        std::uint16_t      _scan_start_port,
+        std::uint16_t      _scan_end_port,
         std::uint32_t      _loop_count,
         std::uint32_t      _pps,
         scanner_packet_udp_ping_data_t _ping_packet_data
     );
     const std::string        target_ip;
     const std::uint32_t      target_port;
-    const std::uint32_t      scan_start_port;
-    const std::uint32_t      scan_end_port;
+    const std::uint16_t      scan_start_port;
+    const std::uint16_t      scan_end_port;
     const std::uint32_t      loop_count;
     const std::uint32_t      pps;
     const scanner_packet_udp_ping_data_t ping_packet_data;
