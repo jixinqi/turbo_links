@@ -1,5 +1,7 @@
 #include "scan/scanner_sender_udp.h"
 
+// 本文件已定型，无需更改
+
 #include <chrono>
 #include <cstdint>
 #include <limits>
@@ -33,7 +35,7 @@ scanner_sender_udp_params_t::scanner_sender_udp_params_t(
 
 scanner_sender_udp_t::scanner_sender_udp_t(boost::asio::ip::udp::socket& _socket)
 : socket_ { _socket }
-, exit_signal_ { false }
+, stop_flag_ { false }
 , running_flag_ { false }
 {
 }
@@ -74,7 +76,7 @@ void scanner_sender_udp_t::do_send(std::shared_ptr<scanner_sender_udp_params_t> 
 
 void scanner_sender_udp_t::exit()
 {
-    exit_signal_.store(true, std::memory_order_release);
+    stop_flag_.store(true, std::memory_order_release);
 }
 
 void scanner_sender_udp_t::do_send_impl()
@@ -89,8 +91,9 @@ void scanner_sender_udp_t::do_send_impl()
             [this]
             (boost::system::error_code ec, std::size_t /*bytes_sent*/)
             {
-                if (ec || this->exit_signal_.load(std::memory_order_acquire))
+                if (ec || this->stop_flag_.load(std::memory_order_acquire))
                 {
+                    this->stop_flag_.store(false, std::memory_order_release);
                     this->running_flag_.store(false, std::memory_order_release);
                     return;
                 }
@@ -100,10 +103,12 @@ void scanner_sender_udp_t::do_send_impl()
                     this->state_->current_loop_ + 1 == this->params_->loop_count
                 )
                 {
+                    this->stop_flag_.store(false, std::memory_order_release);
                     this->running_flag_.store(false, std::memory_order_release);
                     return;
                 }
-                else if(this->state_->current_port_ < this->params_->scan_end_port)
+
+                if(this->state_->current_port_ < this->params_->scan_end_port)
                 {
                     this->state_->current_port_++;
                 }
@@ -119,6 +124,7 @@ void scanner_sender_udp_t::do_send_impl()
     }
     catch (...)
     {
+        stop_flag_.store(false, std::memory_order_release);
         running_flag_.store(false, std::memory_order_release);
         throw;
     }

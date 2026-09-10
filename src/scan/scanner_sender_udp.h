@@ -1,6 +1,8 @@
 #ifndef TURBO_LINKS_SCAN_SCANNER_SENDER_UDP_H
 #define TURBO_LINKS_SCAN_SCANNER_SENDER_UDP_H
 
+// 本文件已定型，无需更改
+
 #include <array>
 #include <atomic>
 #include <chrono>
@@ -62,7 +64,7 @@ public:
     // 空参数或扫描范围无效时抛出 std::invalid_argument；运行中重复启动抛出 std::logic_error。
     void do_send(std::shared_ptr<scanner_sender_udp_params_t> _params);
 
-    // 只设置退出信号；当前发送回调停止续订后，running_flag_ 才变为 false。
+    // 请求停止发送；任务结束时先将 stop_flag_ 恢复为 false，再将 running_flag_ 置为 false。
     void exit();
 
 protected:
@@ -72,7 +74,7 @@ protected:
     std::shared_ptr<scanner_sender_udp_params_t> params_;
     std::shared_ptr<scanner_sender_udp_state_t> state_;
 
-    std::atomic<bool> exit_signal_;
+    std::atomic<bool> stop_flag_;
     std::atomic<bool> running_flag_;
 };
 
